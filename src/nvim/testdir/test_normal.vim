@@ -32,14 +32,14 @@ func CountSpaces(type, ...)
   else
     silent exe "normal! `[v`]y"
   endif
-  let g:a=strlen(substitute(@@, '[^ ]', '', 'g'))
+  let g:a = strlen(substitute(@@, '[^ ]', '', 'g'))
   let &selection = sel_save
   let @@ = reg_save
 endfunc
 
 func OpfuncDummy(type, ...)
   " for testing operatorfunc
-  let g:opt=&linebreak
+  let g:opt = &linebreak
 
   if a:0  " Invoked from Visual mode, use gv command.
     silent exe "normal! gvy"
@@ -50,7 +50,7 @@ func OpfuncDummy(type, ...)
   endif
   " Create a new dummy window
   new
-  let g:bufnr=bufnr('%')
+  let g:bufnr = bufnr('%')
 endfunc
 
 fun! Test_normal00_optrans()
@@ -738,6 +738,22 @@ func Test_normal17_z_scroll_hor2()
   " cleanup
   set wrap listchars=eol:$ sidescrolloff=0
   bw!
+endfunc
+
+func Test_scroll_in_ex_mode()
+  " This was using invalid memory because w_botline was invalid.
+  let lines =<< trim END
+      diffsplit
+      norm os00(
+      call writefile(['done'], 'Xdone')
+      qa!
+  END
+  call writefile(lines, 'Xscript')
+  call assert_equal(1, RunVim([], [], '--clean -es -S Xscript'))
+  call assert_equal(['done'], readfile('Xdone'))
+
+  call delete('Xscript')
+  call delete('Xdone')
 endfunc
 
 func Test_normal18_z_fold()
